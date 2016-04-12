@@ -1,0 +1,77 @@
+开启严格模式  'use strict'
+let 创建块级变量 let定义的变量只能在该模块内有效 
+const 声明一个常量
+class 声明一个类    constructor类的方法，一个类只能有一个此方法
+static 在类中定义静态方法。静态方法被称为无需实例化类也可当类被实例化。静态方法通常用于为应用程序创建实用函数。
+extends 关键字可以用来创建继承于某个类的子类。
+nodeapi
+
+process 
+ process.cwd() 查看应用程序当前目录
+ process.chdir('目录') 修改应用程序目录
+ process.stdout 标准输出流
+ process.stderr 标准错误流
+ process.stdin 	标准输入流
+ process.exit(code) 杀死进程
+ process.stdout.on('data',function(data){}) 给输出流绑定data事件
+ process.stdin.setEnding('uft8') 设置输入流的编码方式。同理可用作stdout，stderr
+
+fs
+ fs.writeFile('filename',data,callback(err))   异步的吧data写入到filename中 如果文件已存在着替换
+ fs.appendFile('filename',data,callback(err))  将data追加的filename中，filename不存在，则创建
+ fs.exists('filename',callback(exists))  判断filename是否存在，存在exists为真
+ fs.rename('oldname','newname',callback(err))  修改文件名称。可利用此方法修改文件路径
+ fs.readFile('filename',callback(err,data)) //异步读取文件内容
+ fs.unlink('filename',callback(err))  删除文件
+ fs.mkdir('路径'，'权限',callback(err)) 创建目录
+ fs.rmdir('路径',callback(err)) 删除目录
+ fs.readdir('目录'，callback（err,files）)  读取目录下的文件
+ fs.createReadStream(filename)  //创建可读数据流 =rs     
+ fs.createWriteStream(filename) 创建可写数据流 =ws
+	rs.on('data',function(data){
+  		ws.write(data);
+	});
+	rs.on('end',function(){
+  		ws.end();
+	});
+ rs.pipe(ws) 把可读数据流转成流动态，流进可写数据流中
+ rs.on("end",callback) 监听可读数据流结束时执行
+ ws.on("finish",callback) 监听可写数据流结束时执行
+  
+url
+ url.parse('url') 解析url，返回一个json对象
+ url.parse('url',true) 第二个参数为true时。url.perse.query 也会解析成json。就是url ？后面的内容
+ url.parse('url',true,true) 第二个参数为true时，解析时会将url的"//"和第一个"/"之间的部分解析为主机名
+ url.format({
+	protocol:"http:",hostname:"www.baidu.com",port:"80",pathname:"/news",query:{page:1}
+	})  //将json反解析成url
+ url.resolve('url1','url2')  //url1 是当前路径，url2是想去的路径。返回值是一个组装好url。url.resolve('http://www,baidu.com',"/news")
+ 
+path
+ path.normalize('path///norname/hi/....') 将不标准的路径，解析为标准的。返回为 path/norname/hi  
+ path.json('//s','/b','//vv') 反解析成标准路径。 /s/b/vv
+ path.dirname('/foo/str/cool/one')  返回路径中的，目录名foo/str/cool
+ path.basename('/ss/aa/bb.html')  返回路径中的最后一部分。 返回bb.html ;path.basename('/ss/aa/bb.html','.html')返回bb
+ path.extname('/ss/bb/cc.html') 返回路径中文件的扩展名 html。如果没有返回“ .”则空字符串
+ 
+querystring
+ querystring.stringify({foo:"bar",cool:["aa","bb"]}) foo=bar&cool=aa&cool=bb
+ querystring.stringify({foo:"bar",cool:["aa","bb"]},"*","#") foo#bar*cool#aa*cool#bb
+ querystring.parse("foo=bar&cool=aa&cool=bb")  {foo:"bar",cool:["aa","bb"]}
+ querystring.parse("foo#bar*cool#aa*cool#bb","*","#") {foo:"bar",cool:["aa","bb"]}
+util
+ util.inspect(object) 把任意对象转换成字符串
+ util.format('%s:%s',"foo","bar","baz")返回‘foo:bar baz’format函数根据第一个参数，返回一个格式化字符串，第一个参数是一个可包含零个或多个占位符的字符串。每一个占位符被替换为与其对应的转换后的值，支持的占位符有："%s(字符串)"、"%d(数字<整型和浮点型>)"、"%j(JSON)"、"%(单独一个百分号则不作为一个参数)"。
+ util.isArray(object) 判断是否为数组类型
+ util.isDate(object) 判断是否为日期类型
+ util.isRegExp(object) 判断是否为正则类型
+ util.inherits(constructor,superConstructor) 从一个构造函数constructor继承原型方法到另一个 
+
+child_process
+ child_process.spawn() 创建一个子进程
+ child_process.exec(command.callback(err,stdout,stderr)) 创建一个子线程
+ child_process.execFile(file,callback(err,stdout,stderr)) 创建子进程直接运行file文件
+ child_process.fork() 可直接运行nodejs模块
+ 
+ 
+

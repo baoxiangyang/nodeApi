@@ -1,0 +1,198 @@
+查询常用操作符
+$lt <; $lte <=; $gt >;$gte >=;$ne != ;$in 可单个值和单个值匹配
+$or 查询多个任意值;$exitst 是否存在; $all
+
+mongoose 连接数据库
+var mongoose = require('mongoose');
+var db=mongoose.connect("mongodb://127.0.0.1:27017/test");
+db.connection.on("error",function(err){
+	console.log(err,"连接错误")
+});
+db.connection.on("open",function(){
+	console.log("---连接成功--")
+});
+关闭连接
+mongoose.connection.close(function(){
+	console.log('关闭连接')
+})
+Schema  一种以文件形式存储的数据库模型骨架，无法直接通往数据库端，也就是说它不具备对数据库的操作能力，仅仅只是数据库模型在程序片段中的一种表现，可以说是数据属性模型(传统意义的表结构)，又或着是“集合”的模型骨架。
+ 定义一个chema var mongoose = require("mongoose");
+ var TestSchema = new mongoose.Schema({
+    name : { type:String },//属性name,类型为String
+    age  : { type:Number, default:0 },//属性age,类型为Number,默认为0
+    time : { type:Date, default:Date.now },
+    email: { type:String,default:''}
+ });
+Model 由Schema构造生成的模型，除了Schema定义的数据库骨架以外，还具有数据库操作的行为，类似于管理数据库属性、行为的类。
+ 通过Schema来创建Model
+   var db = mongoose.connect("mongodb://127.0.0.1:27017/test");
+   var TestModel = db.model("test1", TestSchema); test1：数据库中的集合名称。如果存在则保存到目录下，不存在则创建。TestSchema为Schema模型
+
+创建集合完整步骤
+var mongoose = require("mongoose");
+var db = mongoose.connect("mongodb://127.0.0.1:27017/test");
+var TestSchema = new mongoose.Schema({
+    name : { type:String },
+    age  : { type:Number, default:0 },
+    email: { type:String },
+    time : { type:Date, default:Date.now }
+});
+//注意要是test1中的t不大小默认会在最后面添加s，如test1s。
+或者在model添加第3个参数，为表名 db.model("test1", TestSchema，"test1" )
+var TestModel = db.model("test1", TestSchema );//在mongodb中保存一个test1
+var TestEntity = new TestModel({
+    name : "helloworld",
+    age  : 28,
+    email: "helloworld@qq.com"
+});
+
+TestEntity.save(function(error,doc){
+  if(error){
+     console.log("error :" + error);
+  }else{
+     console.log(doc);
+  }
+});
+
+查询：Model.find({},function(error,docs){
+   //model为定义的集合
+});
+ TestModel.find({"age":28},function(err,doc){
+	if(err){
+	console.log(err)
+	}else{
+	console.log(doc)	
+	}
+ })
+Model.create保存
+model为 TestModel = db.model("test1", TestSchema );中的testModel
+testModel.create({ name:"model_create", age:26}, function(error,doc){
+    if(error) {
+        console.log(error);
+    } else {
+        console.log(doc);
+    }
+});
+model.entity 保存。使用save
+var TestEntity = new TestModel({
+    name : "jerry", 
+    age  : 28, 
+    email: "jerry@qq.com"
+});
+TestEntity.save(function(error,doc) {
+   console.log(doc);
+});
+
+数据更新
+var conditions = {name : 'test_update'}; //查询条件
+ 
+var update = {$set : { age : 16 }}; //更新内容
+ 
+TestModel.update(conditions, update, function(error){
+    if(error) {
+        console.log(error);
+    } else {
+        console.log('Update success!');
+    }
+});
+删除数据
+var conditions = { name: 'tom' };//查询条件
+ 
+TestModel.remove(conditions, function(error){
+    if(error) {
+        console.log(error);
+    } else {
+        console.log('Delete success!');
+    }
+});
+过滤查询
+ find(Conditions,field,callback);field省略或为Null，则返回所有属性。
+ 如//返回只包含一个键值name、age的所有记录
+ Model.find({},{name:1, age:1, _id:0}，function(err,docs){ //返回name，age；_id不返回
+   //docs 查询结果集
+ })
+findOne 返回单个文档
+ TestModel.findOne({ age: 27}, function (err, doc){
+   // 查询符合age等于27的第一条数据
+   // doc是查询结果
+ });
+findById 查询 与findOne相同，但它只接收文档的_id作为参数，返回单个文档。
+ TestModel.findById('obj._id', function (err, doc){
+ //doc 查询结果文档
+ });
+查询age大于20，小于50
+ TestModel.find({"age":{"$gt":20,"$lt":50}},function(error,docs){
+   //查询所有nage大于18小于60的数据
+ });
+查询age为24、25、27
+TestModel.find({ age:{$in:[24,25,27]}},function(error,docs){
+  //可以把多个值组织成一个数组
+}); 
+name为”test4“或者age为27
+TestModel.find({"$or":[{"name":"test4"},{"age":27}]},function(error,docs){
+  //查询name为yaya或age为28的全部文档
+});
+查询存在属性email的所有文档
+TestModel.find({email: {$exists: true}},function(error,docs){
+  //查询所有不存在telephone属性的文档
+});
+
+
+游标：
+var TestModel = db.model("test1", TestSchema )
+模型find(Conditions,fields,options,callback);Conditions查询条件，fields返回内容 options返回条件
+  TestModel.find({},null,{limit:20},function(err,docs){  限制返回数量。返回20条数据
+    console.log(docs);
+  });
+  TestModel.find({},null,{skip:4},function(err,docs){  skip函数的功能是略过指定数量的匹配结果，返回余下的查询结果。查询结果数量中少于4个的话，则不会返回任何结果。
+    console.log(docs);
+});
+  TestModel.find({},null,{sort:{age:-1}},function(err,docs){
+  //查询所有数据，并按照age降序顺序返回数据docs
+});
+
+
+属性方法：
+ 给Schema添加属性
+  var mongoose = require('mongoose');
+  var TempSchema= new mongoose.Schema({}); //默认_id:ObjectId类型
+  TempSchema.add({ name: 'String', email: 'String', age: 'Number' });
+ 给Scham添加方法
+  var saySchema = new mongoose.Schema({name : String});
+  saySchema.method('say', function () {
+   console.log('Trouble Is A Friend');
+   })
+  var say = mongoose.model('say', saySchema);
+  var lenka = new say();
+  lenka.say(); //Trouble Is A Friend
+ 给Schma添加静态方法
+  var mongoose = require("mongoose");
+  var db = mongoose.connect("mongodb://127.0.0.1:27017/test");
+  var TestSchema = new mongoose.Schema({
+    name : { type:String },
+    age  : { type:Number, default:0 },
+    email: { type:String, default:"" },
+    time : { type:Date, default:Date.now }
+  }); 
+  TestSchema.static('findByName', function (name, callback) {
+    return this.find({ name: name }, callback);
+  });
+  var TestModel = db.model("test1", TestSchema );	
+  TestModel.findByName('tom', function (err, docs) {
+   //docs所有名字叫tom的文档结果集
+  });
+Schema 追加方法
+ var mongoose = require("mongoose");
+ var db = mongoose.connect("mongodb://127.0.0.1:27017/test");
+ var TestSchema = new mongoose.Schema({
+    name : { type:String },
+    age  : { type:Number, default:0 },
+    email: { type:String, default:"" },
+    time : { type:Date, default:Date.now }
+ });
+ TestSchema.methods.speak = function(){
+  console.log('我的名字叫'+this.name);
+ }
+ var TestModel = db.model('test1',TestSchema);
+ var TestEntity = new TestModel({name:'Lenka'});
+ TestEntity.speak();//我的名字叫Lenka

@@ -1,0 +1,16 @@
+db.user.insert({})   插入数据  批量插入 db.user.insert([{},{},{}])
+db.user.find() 查找数据 $gt 大于的意思。$lt 小于
+更新查询
+ db.collection.update(query,update,{upsert:boolean,multi:boolean});
+ query：查询条件，文档，和find中的查询条件写法一致。
+ update：修改内容，文档。
+ upsert(可选)：如果值为true，那么当集合中没有匹配文档时，创建文档。默认false。
+ multi(可选)：如果值为true，那么将更新全部符合条件的文档，否则仅更新一个文档，默认false。
+ 请将person集合中所有年龄小于30岁的数据，更新其状态为'X'(提示:小于的操作符是$lt)。
+ db.person.update({age:{$lt:30}},{$set:{"status":"X"}},{multi:true});
+save 更新或插入一个新文档
+ db.person.save({})
+remove 删除文档
+ db.person.remove(query,justOne)query：BSON类型，删除文档的条件。
+ justOne：布尔类型，true：只删除一个文档，false：默认值，删除所有符合条件的文档。
+ db.person.remove({status:"D"})

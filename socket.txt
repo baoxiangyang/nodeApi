@@ -1,0 +1,53 @@
+服务器端
+var io=require("socket.io")(80) 启动socket服务监听80端口
+io.on("connection".function(socket){
+ //用户连接时执行
+	socket.on("disconnect",function(){
+ 	  //用户离开时执行
+	})
+	socket.on("message",function(data){
+	 //捕获客户端通过send或emit('message')，发送来的数据。
+	})
+	socket.on("error",function(){
+	 //发生错误
+	})
+})
+客户端
+var socket=io.connect("/");
+socket.on("connect",function(){
+	alert('连接成功');
+	socket.send('hello world')  //客户端往服务器端发送数据
+	socket.on("message",function(data){//客户端接受到消息
+		console.log(data)
+	})
+	socket.emit("say",{name:"baozi"})  //往服务器发送数据。
+});
+connecting 正在连接，
+disconnect 断开连接
+connect_failed 连接失败
+error 连接错误
+message 监听服务器端seng的信息
+reconnect_failed 重新连接失败
+reconnect 重新连接成功
+reconnecting 正在重连
+客户端发起连接顺序 connecting → connect
+失去连接事件触发顺序 disconnect → reconnecting → connecting → reconnect → connect。
+命名空间
+ 服务器端  io.of('char').on("connection",function(socket){}) //创建一个房间
+ 客户端  var socket=io.connect('/chat') 连接到指定房间
+	socket.join('chat')  进入chat 房间
+	socket.leave('chat')  离开chat房间
+广播消息：
+	socket.broadcast.emit("DATA",data) //服务器的客户端都会受到广播的信息
+ 	socket.broadcast.to('chat').emit("DATA",data)  给chat房间广播消息
+中间件
+io.use(function(socket,next){ 通过中间件进行身份验证，当没有cookie的时候抛出异常。
+	if(socket.request.headers.cookie) retuen next();
+	next(new Error('error'))
+})
+传递参数
+ 客户端发送参数 var socket=io.connect('/',{_query:"sid=123456"})
+ 服务器端接受参数 io.use(function(socket){
+		var query=socket.request_query;
+		var sid=query.sid
+		})
