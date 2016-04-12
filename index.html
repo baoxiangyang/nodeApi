@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>Socket.IO.Example</title>
+	<link rel="stylesheet" href="">
+	<script src="https://cdn.socket.io/socket.io-1.3.6.js"></script>
+	<script type="text/javascript" src="http://apps.bdimg.com/libs/jquery/1.9.0/jquery.min.js"></script>
+</head>
+<body>
+	<h1>Socket.IO.Example</h1><br />
+	<p></p>
+	<form id="message-form" action="#">
+		<textarea id="message" rows="4" cols="30"></textarea>	<br />
+		<input type="submit" value="Send Message" />
+	</form>
+</body>
+<script type="text/javascript">
+	var socket = io.connect("http://0.0.0.0:3000");
+	var message = $("#message");
+	$("#message-form").submit(function(){ //发送消息到服务器
+		socket.emit('message',{text:message.val()})
+		return false;
+	})
+	socket.on('message' , function(data){ //接受服务器返回的数据
+		$('p').text(data.text)
+	})
+	socket.on('ping' ,function(data){
+		console.log('Received PING Send PONG..');
+		socket.emit('pong',{text:"PONG"})
+	})
+	socket.on('pong', function(data){
+		console.log("Received PONG response PONG!")
+	})
+	setInterval(function(){
+		console.log('Sending PING to server');
+		socket.emit('ping', {text:"PING"})
+	},60000);
+</script>
+</html>

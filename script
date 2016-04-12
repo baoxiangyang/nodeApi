@@ -1,0 +1,3 @@
+#!/usr/bin/env node
+console.log('node 脚本 可直接在node中运行')
+
