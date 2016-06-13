@@ -2,7 +2,7 @@ var mongo = require('mongodb');
 var host = "localhost";
 var port = 27017;
 var server = new mongo.Server(host,port,{auto_reconnect:true})
-var db = new mongo.Db('fengBlog',server, {safe:true}); //test 为数据库名字
+var db = new mongo.Db('fengBlog',server, {safe:true}); //fengBlog 为数据库名字
 var docs=[
      {type:"food",price:11},
      {type:"food",price:10},
